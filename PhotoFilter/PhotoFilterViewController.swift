@@ -31,7 +31,7 @@ class PhotoFilterViewController: UIViewController {
     }
     
     private let context = CIContext(options: nil)
-    private let filter = CIFilter.colorControls()
+    private let colorControlsFilter = CIFilter.colorControls()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,12 +39,12 @@ class PhotoFilterViewController: UIViewController {
     }
     
     private func image(byFiltering inputImage: CIImage) -> UIImage {
-        filter.inputImage = inputImage
-        filter.saturation = saturationSlider.value
-        filter.brightness = brightnessSlider.value
-        filter.contrast = contrastSlider.value
+        colorControlsFilter.inputImage = inputImage
+        colorControlsFilter.saturation = saturationSlider.value
+        colorControlsFilter.brightness = brightnessSlider.value
+        colorControlsFilter.contrast = contrastSlider.value
         
-        guard let outputImage = filter.outputImage else { return UIImage(ciImage: inputImage) }
+        guard let outputImage = colorControlsFilter.outputImage else { return UIImage(ciImage: inputImage) }
         guard let renderedImage = context.createCGImage(outputImage, from: outputImage.extent) else { return UIImage(ciImage: inputImage) }
         
         return UIImage(cgImage: renderedImage)

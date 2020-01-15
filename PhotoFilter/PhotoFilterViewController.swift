@@ -58,6 +58,12 @@ class PhotoFilterViewController: UIViewController {
         }
     }
     
+    private func presentSuccessfulSaveAlert() {
+        let alert = UIAlertController(title: "Photo Saved!", message: "The photo has been saved to your photo library", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
     // MARK: Actions
     
     @IBAction func choosePhotoButtonPressed(_ sender: Any) {
@@ -78,9 +84,27 @@ class PhotoFilterViewController: UIViewController {
     }
     
     @IBAction func savePhotoButtonPressed(_ sender: UIButton) {
-        // TODO: Save to photo library
+        guard let originalImage = originalImage, let cgImage = originalImage.cgImage else { return }
+        
+        let processedImage = self.image(byFiltering: CIImage(cgImage: cgImage))
+        
+        PHPhotoLibrary.requestAuthorization { (status) in
+            guard status == .authorized else { return }
+            
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetCreationRequest.creationRequestForAsset(from: processedImage)
+            }) { (success, error) in
+                if let error = error {
+                    NSLog("Error saving photo: \(error)")
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    self.presentSuccessfulSaveAlert()
+                }
+            }
+        }
     }
-    
 
     // MARK: Slider events
     
